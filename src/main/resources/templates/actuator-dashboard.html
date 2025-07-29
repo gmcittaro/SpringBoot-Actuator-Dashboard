@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring Boot Actuator Dashboard</title>
+    
+	<link th:href="@{/css/main.css}" rel="stylesheet">
+	
+	<script type="text/javascript" th:src="@{/js/main.js}"></script>
+	
+
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Spring Boot Actuator Dashboard</h1>
+            <div class="status-indicator">
+                <span class="status-dot" id="connectionStatus"></span>
+                <span id="connectionText">Connecting...</span>
+                <button class="refresh-button" id="refreshBtn" onclick="refreshData()">
+                    <span id="refreshText">Refresh</span>
+                </button>
+            </div>
+        </header>
+
+        <div id="errorContainer"></div>
+
+        <div class="grid">
+            <!-- Health Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <span class="card-icon">🏥</span>
+                        Health Status
+                    </h3>
+                </div>
+                <div class="card-content">
+                    <div class="metric">
+                        <span class="metric-label">
+                            <span class="metric-icon">💚</span>
+                            Overall Status
+                        </span>
+                        <span class="health-status unknown" id="healthStatus">
+                            <span class="loading"></span> Loading...
+                        </span>
+                    </div>
+                    <div id="healthDetails"></div>
+                </div>
+            </div>
+
+            <!-- Memory Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <span class="card-icon">💾</span>
+                        Memory
+                    </h3>
+                </div>
+                <div class="card-content">
+                    <div class="metric">
+                        <span class="metric-label">
+                            <span class="metric-icon">📊</span>
+                            Heap Used
+                        </span>
+                        <span class="metric-value" id="heapUsed">-</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="heapProgress"></div>
+                        </div>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">
+                            <span class="metric-icon">🔝</span>
+                            Heap Max
+                        </span>
+                        <span class="metric-value" id="heapMax">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">
+                            <span class="metric-icon">⚙️</span>
+                            Non-Heap
+                        </span>
+                        <span class="metric-value" id="nonHeapUsed">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Info Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <span class="card-icon">🖥️</span>
+                        System
+                    </h3>
+                </div>
+                <div class="card-content">
+                    <div class="metric">
+                        <span class="metric-label">
+                            <span class="metric-icon">⚡</span>
+                            CPU Usage
+                        </span>
+                        <span class="metric-value" id="cpuUsage">-</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="cpuProgress"></div>
+                        </div>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">
+                            <span class="metric-icon">⏱️</span>
+                            Uptime
+                        </span>
+                        <span class="metric-value" id="uptime">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">
+                            <span class="metric-icon">🔧</span>
+                            Processors
+                        </span>
+                        <span class="metric-value" id="processors">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HTTP Requests Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <span class="card-icon">🌐</span>
+                        HTTP Requests
+                    </h3>
+                </div>
+                <div class="card-content">
+                    <div class="metric">
+                        <span class="metric-label">
+                            <span class="metric-icon">📈</span>
+                            Total Requests
+                        </span>
+                        <span class="metric-value" id="httpTotal">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">
+                            <span class="metric-icon">✅</span>
+                            2xx Success
+                        </span>
+                        <span class="metric-value" id="http2xx">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">
+                            <span class="metric-icon">⚠️</span>
+                            4xx Client Errors
+                        </span>
+                        <span class="metric-value" id="http4xx">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">
+                            <span class="metric-icon">🚨</span>
+                            5xx Server Errors
+                        </span>
+                        <span class="metric-value" id="http5xx">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thread Info Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <span class="card-icon">🧵</span>
+                        Threads
+                    </h3>
+                </div>
+                <div class="card-content">
+                    <div class="metric">
+                        <span class="metric-label">
+                            <span class="metric-icon">🔄</span>
+                            Active Threads
+                        </span>
+                        <span class="metric-value" id="threadCount">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">
+                            <span class="metric-icon">🏔️</span>
+                            Peak Threads
+                        </span>
+                        <span class="metric-value" id="peakThreadCount">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">
+                            <span class="metric-icon">👻</span>
+                            Daemon Threads
+                        </span>
+                        <span class="metric-value" id="daemonThreadCount">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Garbage Collection Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <span class="card-icon">🗑️</span>
+                        Garbage Collection
+                    </h3>
+                </div>
+                <div class="card-content">
+                    <div id="gcInfo">
+                        <div class="loading"></div> Loading...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
